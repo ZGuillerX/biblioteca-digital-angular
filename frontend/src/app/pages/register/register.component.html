@@ -1,0 +1,107 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card">
+        <div class="card-body p-4">
+          <h2 class="text-center mb-4">Registro</h2>
+
+          <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+          <div class="alert alert-success" *ngIf="success">
+            ¡Registro exitoso! Redirigiendo al login...
+          </div>
+
+          <form (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="username" class="form-label">Usuario *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                placeholder="Elige un nombre de usuario"
+                [(ngModel)]="formData.username"
+                name="username"
+                required
+                minlength="3"
+                autofocus
+              />
+              <small class="form-text text-muted">
+                Solo letras, números y guiones bajos
+              </small>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email *</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                placeholder="tu@email.com"
+                [(ngModel)]="formData.email"
+                name="email"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="full_name" class="form-label">Nombre Completo</label>
+              <input
+                type="text"
+                class="form-control"
+                id="full_name"
+                placeholder="Tu nombre completo"
+                [(ngModel)]="formData.full_name"
+                name="full_name"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Contraseña *</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                placeholder="Mínimo 6 caracteres"
+                [(ngModel)]="formData.password"
+                name="password"
+                required
+                minlength="6"
+              />
+              <small class="form-text text-muted">
+                Debe contener letras y números
+              </small>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirmar Contraseña *</label>
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                placeholder="Repite tu contraseña"
+                [(ngModel)]="formData.confirmPassword"
+                name="confirmPassword"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary w-100"
+              [disabled]="loading || success"
+            >
+              {{ loading ? 'Registrando...' : 'Registrarse' }}
+            </button>
+          </form>
+
+          <hr />
+
+          <div class="text-center">
+            <p class="mb-0">
+              ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

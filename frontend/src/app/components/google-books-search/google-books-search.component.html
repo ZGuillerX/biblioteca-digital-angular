@@ -1,0 +1,166 @@
+<div>
+  <h1>Búsqueda en Google Books</h1>
+
+  <div class="alert alert-danger alert-dismissible" *ngIf="error">
+    Error: {{ error }}
+    <button type="button" class="btn-close" (click)="clearError()"></button>
+  </div>
+
+  <div class="alert alert-success alert-dismissible" *ngIf="success">
+    {{ success }}
+    <button type="button" class="btn-close" (click)="clearSuccess()"></button>
+  </div>
+
+  <form (ngSubmit)="handleSearch()" class="mb-4">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <select
+          class="form-select"
+          [(ngModel)]="searchField"
+          name="searchField"
+        >
+          <option value="all">Todos los campos</option>
+          <option value="title">Título</option>
+          <option value="description">Descripción</option>
+          <option value="category">Categoría</option>
+        </select>
+      </div>
+      <div class="col-md-7">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar por título, autor o ISBN..."
+          [(ngModel)]="query"
+          name="query"
+        />
+      </div>
+      <div class="col-md-2">
+        <button
+          class="btn btn-primary w-100"
+          type="submit"
+          [disabled]="loading"
+        >
+          {{ loading ? "Buscando..." : "Buscar" }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Buscando en Google Books...</span>
+    </div>
+    <p class="mt-3">Buscando en Google Books...</p>
+  </div>
+
+  <div *ngIf="!loading && results.length > 0">
+    <h2>
+      {{ results.length }} libro{{
+        results.length !== 1 ? "s" : ""
+      }}
+      encontrado{{ results.length !== 1 ? "s" : "" }}
+    </h2>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-2">
+      <div
+        class="col"
+        *ngFor="let book of results; let i = index"
+        [attr.data-key]="book.isbn + '-' + i"
+      >
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-center mb-3" *ngIf="book.cover_url; else noImage">
+              <img
+                [src]="book.cover_url"
+                [alt]="book.title"
+                style="
+                  width: 100px;
+                  height: 150px;
+                  object-fit: cover;
+                  border-radius: 4px;
+                "
+              />
+            </div>
+            <ng-template #noImage>
+              <div class="text-center mb-3 text-muted">Sin imagen</div>
+            </ng-template>
+
+            <h5 class="card-title">{{ book.title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              {{ book.author || "Autor desconocido" }}
+            </h6>
+
+            <p class="card-text" *ngIf="book.isbn">
+              <small><strong>ISBN:</strong> {{ book.isbn }}</small>
+            </p>
+            <p class="card-text" *ngIf="book.category">
+              <small><strong>Categoría:</strong> {{ book.category }}</small>
+            </p>
+            <p class="card-text" *ngIf="book.publication_year">
+              <small><strong>Año:</strong> {{ book.publication_year }}</small>
+            </p>
+            <p class="card-text" *ngIf="book.description">
+              <small class="text-muted">
+                {{
+                  book.description.length > 150
+                    ? book.description.substring(0, 150) + "..."
+                    : book.description
+                }}
+              </small>
+            </p>
+
+            <div class="d-grid gap-2 mt-3">
+              <ng-container
+                *ngIf="
+                  book.isbn && catalogByIsbn[book.isbn] as existingByIsbn;
+                  else checkByTitle
+                "
+              >
+                <button class="btn btn-outline-secondary w-100" disabled>
+                  Agregado
+                </button>
+              </ng-container>
+              <ng-template #checkByTitle>
+                <ng-container
+                  *ngIf="
+                    book.title &&
+                      catalogByTitle[
+                        book.title.trim().toLowerCase()
+                      ] as existingByTitle;
+                    else canAdd
+                  "
+                >
+                  <button class="btn btn-outline-secondary w-100" disabled>
+                    Agregado
+                  </button>
+                </ng-container>
+              </ng-template>
+              <ng-template #canAdd>
+                <button
+                  class="btn btn-primary w-100"
+                  (click)="handleAddBook(book)"
+                  [disabled]="addingBook === (book.isbn || book.title)"
+                >
+                  {{
+                    addingBook === (book.isbn || book.title)
+                      ? "Agregando..."
+                      : "Agregar al catálogo"
+                  }}
+                </button>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="!loading && results.length === 0 && query"
+    class="text-center mt-5"
+  >
+    <div class="display-1"></div>
+    <h3>No se encontraron resultados</h3>
+    <p class="text-muted">Intenta con otros términos de búsqueda</p>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="card h-100 shadow-sm">
+  <div class="card-body">
+    <div class="text-center mb-3">
+      <img
+        [src]="book.cover_url || 'assets/default-cover.svg'"
+        [alt]="book.title"
+        class="book-cover"
+        loading="lazy"
+      />
+    </div>
+    <h5 class="card-title text-truncate" [title]="book.title">
+      {{ book.title }}
+    </h5>
+
+    <h6 class="card-subtitle mb-2 text-muted">
+      {{ book.author }}
+    </h6>
+
+    <p class="card-text">
+      <small class="text-muted">
+        {{ book.category || "Sin categoría" }}<br />
+        {{ book.publication_year || "N/A" }}<br />
+        ISBN: {{ book.isbn }}
+      </small>
+    </p>
+
+    <p class="card-text text-muted small" *ngIf="book.description">
+      {{ getTruncatedDescription() }}
+    </p>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div>
+        <span
+          class="badge"
+          [class.bg-success]="isAvailable()"
+          [class.bg-danger]="!isAvailable()"
+        >
+          {{
+            isAvailable()
+              ? book.available_copies + " disponibles"
+              : "No disponible"
+          }}
+        </span>
+        <span class="badge bg-secondary ms-2">
+          Total: {{ book.total_copies }}
+        </span>
+      </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+      <button class="btn btn-outline-primary btn-sm" (click)="viewDetails()">
+        Ver Detalles
+      </button>
+
+      <button
+        *ngIf="showLoanButton && isAvailable()"
+        class="btn btn-primary btn-sm"
+        (click)="handleLoanClick()"
+      >
+        Solicitar Préstamo
+      </button>
+
+      <button
+        *ngIf="showDeleteButton"
+        class="btn btn-danger btn-sm"
+        (click)="onDeleteClick()"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

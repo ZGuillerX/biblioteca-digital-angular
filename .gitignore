@@ -1,0 +1,88 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+build/
+dist/
+out-tsc
+/.angular/cache
+.sass-cache/
+npm-debug.log
+yarn-error.log
+
+# Angular
+frontend/.angular/cache/
+
+# Angular / Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Environment variables
+.env
+!.env.example
+*.key
+*.pem
+*.bin
+*.token.json
+
+# Logs
+
+*.log
+app/logs/
+libpeerconnection.log
+testem.log
+connect.lock
+
+# Database
+*.db
+*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.history/*
+
+# Miscellaneous / temporary
+*.bak
+*.old
+*.tmp
+*.swp
+*.swo
+*~
+respuesta.json
+downloads/
+.ipynb_checkpoints/
+
+# Docker / specific folders
+
+consultaempresasetb_api/
+consultaempresasetb_celery/
+*.tar
+docker-compose.override.yml

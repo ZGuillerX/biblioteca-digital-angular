@@ -1,0 +1,178 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Carga Masiva de Libros</h2>
+
+  <div class="alert alert-danger alert-dismissible" *ngIf="error">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="clearError()"></button>
+  </div>
+
+  <!-- Instrucciones -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Instrucciones</h5>
+    </div>
+    <div class="card-body">
+      <h6>Formato del archivo Excel:</h6>
+      <p>El archivo debe contener las siguientes columnas obligatorias:</p>
+      <ul>
+        <li><strong>title</strong> - Título del libro</li>
+        <li><strong>author</strong> - Autor del libro</li>
+        <li><strong>isbn</strong> - ISBN del libro (10 o 13 dígitos)</li>
+      </ul>
+
+      <h6 class="mt-3">Columnas opcionales:</h6>
+      <ul>
+        <li><strong>description</strong> - Descripción del libro</li>
+        <li><strong>category</strong> - Categoría</li>
+        <li><strong>publication_year</strong> - Año de publicación</li>
+        <li><strong>total_copies</strong> - Total de copias (default: 1)</li>
+        <li>
+          <strong>available_copies</strong> - Copias disponibles (default: 1)
+        </li>
+      </ul>
+
+      <button
+        class="btn btn-outline-primary btn-sm"
+        (click)="downloadTemplate()"
+      >
+        Descargar Plantilla CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Formulario de carga -->
+  <div class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Seleccionar archivo Excel</label>
+        <input
+          id="fileInput"
+          type="file"
+          class="form-control"
+          accept=".xlsx,.xls"
+          (change)="onFileChange($event)"
+          [disabled]="uploading"
+        />
+        <div class="form-text">Formatos aceptados: .xlsx, .xls</div>
+      </div>
+
+      <div class="mb-3">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="enrichCheckbox"
+            [(ngModel)]="enrichWithGoogle"
+            [disabled]="uploading"
+          />
+          <label class="form-check-label" for="enrichCheckbox">
+            Enriquecer datos con Google Books API (más lento pero completa
+            información)
+          </label>
+        </div>
+      </div>
+
+      <div *ngIf="uploading" class="mb-3">
+        <div class="progress">
+          <div
+            class="progress-bar progress-bar-striped progress-bar-animated"
+            [style.width.%]="progress"
+          >
+            {{ progress }}%
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        (click)="handleUpload()"
+        [disabled]="!file || uploading"
+      >
+        {{ uploading ? "Cargando..." : "Subir Archivo" }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div *ngIf="result" class="card mt-4 border-success">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">Resultado de la Carga</h5>
+    </div>
+    <div class="card-body">
+      <h6>Resumen:</h6>
+      <ul class="list-group mb-3">
+        <li class="list-group-item">
+          <strong>Total de filas:</strong> {{ result.summary.total_rows }}
+        </li>
+        <li class="list-group-item text-success">
+          <strong>✓ Exitosos:</strong> {{ result.summary.successful }}
+        </li>
+        <li
+          class="list-group-item text-info"
+          *ngIf="result.summary.enriched > 0"
+        >
+          <strong>Enriquecidos:</strong> {{ result.summary.enriched }}
+        </li>
+        <li class="list-group-item text-warning">
+          <strong>⚠ Omitidos:</strong> {{ result.summary.skipped }}
+        </li>
+        <li class="list-group-item text-danger">
+          <strong>✗ Errores:</strong> {{ result.summary.errors }}
+        </li>
+      </ul>
+
+      <div
+        *ngIf="result.details.success && result.details.success.length > 0"
+        class="mb-3"
+      >
+        <h6 class="text-success">Libros creados exitosamente:</h6>
+        <ul class="list-group">
+          <li
+            class="list-group-item"
+            *ngFor="let item of result.details.success.slice(0, 5)"
+          >
+            <span class="badge bg-success me-2">Fila {{ item.row }}</span>
+            {{ item.title }} - ISBN: {{ item.isbn }}
+          </li>
+          <li
+            class="list-group-item text-muted"
+            *ngIf="result.details.success.length > 5"
+          >
+            ... y {{ result.details.success.length - 5 }} más
+          </li>
+        </ul>
+      </div>
+
+      <div
+        *ngIf="result.details.skipped && result.details.skipped.length > 0"
+        class="mb-3"
+      >
+        <h6 class="text-warning">Filas omitidas:</h6>
+        <ul class="list-group">
+          <li
+            class="list-group-item"
+            *ngFor="let item of result.details.skipped"
+          >
+            <span class="badge bg-warning me-2">Fila {{ item.row }}</span>
+            <span *ngIf="item.isbn">ISBN: {{ item.isbn }} - </span>
+            {{ item.reason }}
+          </li>
+        </ul>
+      </div>
+
+      <div *ngIf="result.details.errors && result.details.errors.length > 0">
+        <h6 class="text-danger">Errores:</h6>
+        <ul class="list-group">
+          <li
+            class="list-group-item list-group-item-danger"
+            *ngFor="let item of result.details.errors"
+          >
+            <span class="badge bg-danger me-2">Fila {{ item.row }}</span>
+            <span *ngIf="item.isbn">ISBN: {{ item.isbn }} - </span>
+            {{ item.error }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

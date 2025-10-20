@@ -1,0 +1,120 @@
+<div class="container mt-5">
+  <!-- Hero Section -->
+  <div class="text-center mb-5">
+    <h1 class="display-4">Bienvenido a Biblioteca Digital</h1>
+    <p class="lead text-muted">
+      Tu sistema de gestión de préstamos de libros
+    </p>
+
+    <div *ngIf="isAuthenticated; else notAuthenticatedBlock" class="mt-4">
+      <h4>¡Hola, {{ user?.username }}! </h4>
+      <p class="text-muted">¿Qué te gustaría hacer hoy?</p>
+      <div class="d-flex justify-content-center gap-3 mt-3">
+        <button class="btn btn-primary btn-lg" (click)="navigateTo('/books')">
+          Ver Catálogo
+        </button>
+        <button class="btn btn-outline-primary btn-lg" (click)="navigateTo('/my-loans')">
+          Mis Préstamos
+        </button>
+      </div>
+    </div>
+
+    <ng-template #notAuthenticatedBlock>
+      <div class="mt-4">
+        <button class="btn btn-primary btn-lg me-3" (click)="navigateTo('/register')">
+          Registrarse
+        </button>
+        <button class="btn btn-outline-primary btn-lg" (click)="navigateTo('/login')">
+          Iniciar Sesión
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Features -->
+  <div class="row mb-5">
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <div class="display-4 mb-3"></div>
+          <h5 class="card-title">Amplio Catálogo</h5>
+          <p class="card-text">
+            Accede a nuestra colección de libros en diferentes categorías
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <div class="display-4 mb-3"></div>
+          <h5 class="card-title">Búsqueda Fácil</h5>
+          <p class="card-text">
+            Encuentra rápidamente el libro que buscas por título o autor
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 text-center shadow-sm">
+        <div class="card-body">
+          <div class="display-4 mb-3"></div>
+          <h5 class="card-title">Gestión Simple</h5>
+          <p class="card-text">
+            Administra tus préstamos y devoluciones de manera sencilla
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="card bg-light">
+    <div class="card-body">
+      <h3 class="text-center mb-4">¿Cómo funciona?</h3>
+      <div class="row">
+        <div class="col-md-3 text-center mb-3">
+          <div class="display-6 mb-2">1</div>
+          <h5>Regístrate</h5>
+          <p class="text-muted">Crea tu cuenta gratis</p>
+        </div>
+
+        <div class="col-md-3 text-center mb-3">
+          <div class="display-6 mb-2">2</div>
+          <h5>Explora</h5>
+          <p class="text-muted">Busca en nuestro catálogo</p>
+        </div>
+
+        <div class="col-md-3 text-center mb-3">
+          <div class="display-6 mb-2">3</div>
+          <h5>Solicita</h5>
+          <p class="text-muted">Pide el libro que quieras</p>
+        </div>
+
+        <div class="col-md-3 text-center mb-3">
+          <div class="display-6 mb-2">4</div>
+          <h5>Disfruta</h5>
+          <p class="text-muted">Lee y devuelve a tiempo</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info adicional -->
+  <div class="mt-5 mb-5 text-center">
+    <h4>Información Importante</h4>
+    <div class="row mt-4">
+      <div class="col-md-4">
+        <p><strong>Duración del préstamo:</strong> 14 días</p>
+      </div>
+      <div class="col-md-4">
+        <p><strong>Límite de préstamos:</strong> 3 simultáneos</p>
+      </div>
+      <div class="col-md-4">
+        <p><strong>Disponibilidad:</strong> En tiempo real</p>
+      </div>
+    </div>
+  </div>
+</div>

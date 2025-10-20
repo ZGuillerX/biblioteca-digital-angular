@@ -1,0 +1,14 @@
+FROM node:20
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# mirror rápido y instala dependencias
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install --no-audit --no-fund --prefer-offline \
+    && npm install bootstrap --save \
+    && npm install -g @angular/cli@16.2.10
+
+
+CMD ["npm", "start"]

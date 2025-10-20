@@ -1,0 +1,49 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Catálogo de Libros</h2>
+
+  <div class="alert alert-danger alert-dismissible" *ngIf="error">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="clearError()"></button>
+  </div>
+
+  <div class="alert alert-success alert-dismissible" *ngIf="success">
+    {{ success }}
+    <button type="button" class="btn-close" (click)="clearSuccess()"></button>
+  </div>
+
+  <div *ngIf="loading" class="text-center mt-5">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3">Cargando catálogo...</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <app-book-search 
+      [books]="books" 
+      (searchResults)="handleSearch($event)">
+    </app-book-search>
+
+    <div *ngIf="!filteredBooks || filteredBooks.length === 0" class="alert alert-info mt-4">
+      {{ books.length === 0 
+        ? 'No hay libros en el catálogo' 
+        : 'No se encontraron libros con los criterios de búsqueda' }}
+    </div>
+
+    <ng-container *ngIf="filteredBooks && filteredBooks.length > 0">
+      <p class="text-muted mb-3">
+        Mostrando {{ filteredBooks.length }} libro(s)
+      </p>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        <div class="col" *ngFor="let book of filteredBooks">
+          <app-book-card
+            [book]="book"
+            [showLoanButton]="isAuthenticated"
+            (loanRequest)="handleLoanRequest($event)">
+          </app-book-card>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
