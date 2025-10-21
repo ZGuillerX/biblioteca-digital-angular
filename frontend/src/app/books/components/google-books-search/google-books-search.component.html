@@ -1,14 +1,32 @@
-<div>
-  <h1>Búsqueda en Google Books</h1>
+<div class="container mt-4">
+  <h1 class="mb-4">Búsqueda en Google Books</h1>
 
-  <div class="alert alert-danger alert-dismissible" *ngIf="error">
-    Error: {{ error }}
-    <button type="button" class="btn-close" (click)="clearError()"></button>
+  <div
+    class="alert alert-danger alert-dismissible fade show"
+    *ngIf="error"
+    role="alert"
+  >
+    <strong>Error:</strong> {{ error }}
+    <button
+      type="button"
+      class="btn-close"
+      (click)="clearError()"
+      aria-label="Close"
+    ></button>
   </div>
 
-  <div class="alert alert-success alert-dismissible" *ngIf="success">
-    {{ success }}
-    <button type="button" class="btn-close" (click)="clearSuccess()"></button>
+  <div
+    class="alert alert-success alert-dismissible fade show"
+    *ngIf="success"
+    role="alert"
+  >
+    <strong>¡Éxito!</strong> {{ success }}
+    <button
+      type="button"
+      class="btn-close"
+      (click)="clearSuccess()"
+      aria-label="Close"
+    ></button>
   </div>
 
   <form (ngSubmit)="handleSearch()" class="mb-4">
@@ -18,6 +36,7 @@
           class="form-select"
           [(ngModel)]="searchField"
           name="searchField"
+          (change)="onSearchFieldChange()"
         >
           <option value="all">Todos los campos</option>
           <option value="title">Título</option>
@@ -31,6 +50,7 @@
           class="form-control"
           placeholder="Buscar por título, autor o ISBN..."
           [(ngModel)]="query"
+          (ngModelChange)="onQueryChange($event)"
           name="query"
         />
       </div>
@@ -112,33 +132,26 @@
             <div class="d-grid gap-2 mt-3">
               <ng-container
                 *ngIf="
-                  book.isbn && catalogByIsbn[book.isbn] as existingByIsbn;
-                  else checkByTitle
+                  book.added ||
+                    (book.isbn && catalogByIsbn[book.isbn]) ||
+                    (book.title &&
+                      catalogByTitle[book.title.trim().toLowerCase()]);
+                  else canAdd
                 "
               >
-                <button class="btn btn-outline-secondary w-100" disabled>
-                  Agregado
+                <button
+                  class="btn btn-outline-success w-100"
+                  disabled
+                  type="button"
+                >
+                  Agregado al catálogo
                 </button>
               </ng-container>
-              <ng-template #checkByTitle>
-                <ng-container
-                  *ngIf="
-                    book.title &&
-                      catalogByTitle[
-                        book.title.trim().toLowerCase()
-                      ] as existingByTitle;
-                    else canAdd
-                  "
-                >
-                  <button class="btn btn-outline-secondary w-100" disabled>
-                    Agregado
-                  </button>
-                </ng-container>
-              </ng-template>
               <ng-template #canAdd>
                 <button
+                  type="button"
                   class="btn btn-primary w-100"
-                  (click)="handleAddBook(book)"
+                  (click)="$event.preventDefault(); handleAddBook(book)"
                   [disabled]="addingBook === (book.isbn || book.title)"
                 >
                   {{

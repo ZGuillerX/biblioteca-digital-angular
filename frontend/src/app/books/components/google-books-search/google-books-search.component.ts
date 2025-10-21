@@ -1,7 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { ApiClientService } from '../../../services/api-client.service';
 import { BookService } from '../../../services/book.service';
+// Toastify para notificaciones tipo toast
+import * as Toastify from 'toastify-js';
 
 interface GoogleBook {
   title: string;
@@ -11,6 +13,7 @@ interface GoogleBook {
   category?: string;
   publication_year?: number;
   cover_url?: string;
+  added?: boolean;
 }
 
 @Component({
@@ -33,10 +36,12 @@ export class GoogleBooksSearchComponent implements OnInit, OnDestroy {
 
   private catalogSub?: Subscription;
   private successTimeout?: any;
+  private searchDebounce?: any;
 
   constructor(
     private apiClient: ApiClientService,
-    private bookService: BookService
+    private bookService: BookService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -105,6 +110,24 @@ export class GoogleBooksSearchComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Búsqueda en tiempo real con debounce
+  onQueryChange(value: string): void {
+    this.query = value;
+    if (this.searchDebounce) clearTimeout(this.searchDebounce);
+    this.searchDebounce = setTimeout(() => {
+      this.handleSearch();
+    }, 400);
+  }
+
+  // Al cambiar el campo de búsqueda, ejecutar búsqueda inmediata
+  onSearchFieldChange(): void {
+    // Si hay texto, realizar búsqueda inmediatamente
+    if (this.query && this.query.trim()) {
+      if (this.searchDebounce) clearTimeout(this.searchDebounce);
+      this.handleSearch();
+    }
+  }
+
   async handleAddBook(googleBook: GoogleBook): Promise<void> {
     try {
       this.addingBook = googleBook.isbn || googleBook.title;
@@ -139,30 +162,58 @@ export class GoogleBooksSearchComponent implements OnInit, OnDestroy {
       }
 
       // Emitir evento para notificar a otros componentes
-      this.bookService.emitCatalogChange();
+      // Temporalmente desactivado para diagnosticar recarga/limpieza de la búsqueda
+      // this.bookService.emitCatalogChange();
 
-      // Mostrar mensaje de éxito
-      this.success = `✓ Libro "${googleBook.title}" agregado exitosamente al catálogo`;
+      // Mostrar mensaje de éxito (alerta como respaldo)
+      this.success = `Libro "${googleBook.title}" agregado exitosamente al catálogo`;
 
-      // Scroll suave hacia arriba para mostrar la notificación
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+      // Mostrar toast con Toastify
+      try {
+        Toastify({
+          text: `Libro "${googleBook.title}" agregado al catálogo`,
+          duration: 1000,
+          gravity: 'top',
+          position: 'right',
+          close: true,
+          style: {
+            background: 'linear-gradient(90deg, #28a745, #218838)',
+            color: '#fff',
+          },
+        }).showToast();
+      } catch (e) {
+        // noop si Toastify falla
+        console.warn('Toastify no disponible:', e);
+      }
 
-      // Auto-ocultar después de 8 segundos (más tiempo para que se vea)
+  
+
+      // Auto-ocultar después de 8 segundos (alerta de respaldo)
       this.successTimeout = setTimeout(() => {
         this.success = '';
+        this.cdr.detectChanges();
       }, 8000);
+
+      // Actualizar los resultados para reflejar el nuevo estado del libro
+      this.results = this.results.map((book) => {
+        if (book.isbn === googleBook.isbn || book.title === googleBook.title) {
+          return { ...book, added: true };
+        }
+        return book;
+      });
+
+      // Forzar la detección de cambios
+      this.cdr.detectChanges();
     } catch (err: any) {
       console.error('Error al agregar libro:', err);
       this.error = err.detail || 'Error al agregar libro al catálogo';
 
       // Scroll para mostrar el error también
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       this.addingBook = null;
+      // Forzar la detección de cambios
+      this.cdr.detectChanges();
     }
   }
 
@@ -177,4 +228,3 @@ export class GoogleBooksSearchComponent implements OnInit, OnDestroy {
     }
   }
 }
-
