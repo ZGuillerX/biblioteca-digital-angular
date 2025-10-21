@@ -37,6 +37,7 @@ def search_book_by_isbn(isbn: str) -> Optional[Dict]:
         volume_info = item.get("volumeInfo", {})
         
         book_data = {
+            "google_books_id": item.get("id"),  # volumeId de Google Books
             "title": volume_info.get("title"),
             "author": ", ".join(volume_info.get("authors", [])),
             "description": volume_info.get("description"),
@@ -57,14 +58,6 @@ def search_book_by_isbn(isbn: str) -> Optional[Dict]:
 
 
 # Busca libros por término de búsqueda
-import requests
-import logging
-
-logger = logging.getLogger(__name__)
-
-GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes"
-
-#Busca libros en Google Books y devuelve una lista de diccionarios listos para el frontend
 def search_books(query: str, max_results: int = 10) -> list:
     
     try:
@@ -94,6 +87,7 @@ def search_books(query: str, max_results: int = 10) -> list:
                 continue
 
             book_data = {
+                "google_books_id": item.get("id"),  # volumeId de Google Books
                 "isbn": isbn,
                 "title": volume_info.get("title"),
                 "author": ", ".join(volume_info.get("authors", [])),

@@ -1,0 +1,64 @@
+<div class="book-reader">
+  <!-- Estado de carga -->
+  <div *ngIf="loading" class="reader-loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3">Cargando libro...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error && !loading" class="alert alert-danger">
+    <strong>Error:</strong> {{ error }}
+    <button class="btn btn-sm btn-outline-danger mt-2" (click)="loadBook()">
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Mostrar información general del libro -->
+  <div *ngIf="!loading && !error && bookDetails" class="book-info">
+    <div class="book-header d-flex align-items-start mb-3">
+      <img *ngIf="bookDetails.cover_url" [src]="bookDetails.cover_url" alt="Portada" class="book-cover me-3"/>
+      <div>
+        <h3>{{ bookDetails.title }}</h3>
+        <p><strong>Autor:</strong> {{ bookDetails.author }}</p>
+        <p><strong>Año:</strong> {{ bookDetails.publication_year || 'N/A' }}</p>
+        <p><strong>Categoría:</strong> {{ bookDetails.category || 'N/A' }}</p>
+        <p><strong>ISBN:</strong> {{ bookDetails.isbn }}</p>
+        <p><strong>Copias disponibles:</strong> {{ bookDetails.available_copies }}/{{ bookDetails.total_copies }}</p>
+      </div>
+    </div>
+    <div class="book-description" *ngIf="bookDetails.description">
+      <p>{{ bookDetails.description }}</p>
+    </div>
+  </div>
+
+  <!-- Mostrar lector solo si hay permiso -->
+  <div *ngIf="!loading && !error && showIframe && bookData?.google_books_id && viewerUrl" class="reader-container">
+    <div class="reader-header mb-2">
+      <h4>{{ bookData?.book_title }}</h4>
+      <span class="badge" [class.badge-preview]="bookData?.is_preview" [class.badge-full]="!bookData?.is_preview">
+        {{ bookData?.is_preview ? 'Vista Previa' : 'Lectura Completa' }}
+      </span>
+    </div>
+
+    <div class="viewer-wrapper">
+      <iframe 
+        [src]="viewerUrl | safe: 'resourceUrl'" 
+        class="google-books-iframe"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <div class="reader-footer mt-2">
+      <div class="alert alert-info" *ngIf="bookData?.is_preview">
+        <strong>Vista Previa:</strong> Estás viendo una vista previa limitada. Para leer el libro completo, debes solicitarlo en préstamo.
+      </div>
+
+      <div class="alert alert-success" *ngIf="!bookData?.is_preview && bookData?.has_loan">
+        <strong>Lectura Completa:</strong> Tienes acceso completo a este libro mientras dure tu préstamo.
+      </div>
+    </div>
+  </div>
+</div>

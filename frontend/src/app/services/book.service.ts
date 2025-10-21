@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom, Subject } from 'rxjs';
-import { ApiClientService } from './api-client.service';
+import { firstValueFrom, Subject } from 'rxjs';
+import  { ApiClientService } from './api-client.service';
 
 export interface Book {
   id: number;
@@ -13,12 +13,28 @@ export interface Book {
   total_copies: number;
   available_copies: number;
   cover_url?: string;
+  total_pages?: number;
+}
+
+export interface BookPage {
+  number: number;
+  content: string;
+}
+
+export interface BookPagesData {
+  book_id: number;
+  book_title: string;
+  total_pages: number;
+  pages: BookPage[];
+  is_preview: boolean;
+  has_loan: boolean;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
+  [x: string]: any;
   // Subject para notificar cambios en el catálogo (creación/elim/actualización)
   public catalogChanged: Subject<void> = new Subject<void>();
   constructor(private apiClient: ApiClientService) {}
@@ -107,13 +123,37 @@ export class BookService {
     }
   }
 
-  async delete(id: number, force: boolean = false): Promise<any> {
+  async delete(id: number, force = false): Promise<any> {
     try {
       const url = force ? `/api/books/${id}?force=true` : `/api/books/${id}`;
       const response = await firstValueFrom(this.apiClient.delete(url));
       return response;
     } catch (error) {
       console.error('Error al eliminar libro:', error);
+      throw error;
+    }
+  }
+
+  async getBookPreview(bookId: number): Promise<BookPagesData> {
+    try {
+      const response = await firstValueFrom(
+        this.apiClient.get<BookPagesData>(`/api/books/${bookId}/preview`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al obtener vista previa:', error);
+      throw error;
+    }
+  }
+
+  async readBook(bookId: number): Promise<BookPagesData> {
+    try {
+      const response = await firstValueFrom(
+        this.apiClient.get<BookPagesData>(`/api/books/${bookId}/read`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al leer libro:', error);
       throw error;
     }
   }

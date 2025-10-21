@@ -40,10 +40,31 @@
           <app-book-card
             [book]="book"
             [showLoanButton]="isAuthenticated"
-            (loanRequest)="handleLoanRequest($event)">
+            [showPreviewButton]="true"
+            (loanRequest)="handleLoanRequest($event)"
+            (previewRequest)="handlePreviewRequest($event)">
           </app-book-card>
         </div>
       </div>
     </ng-container>
   </ng-container>
+
+  <!-- Modal para vista previa del libro -->
+  <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="previewModalLabel">Vista Previa del Libro</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <app-book-reader 
+            *ngIf="selectedBookForPreview" 
+            [bookId]="selectedBookForPreview" 
+            [isPreview]="true">
+          </app-book-reader>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

@@ -52,6 +52,15 @@
         Ver Detalles
       </button>
 
+      <!-- Agregar botón de vista previa -->
+      <button
+        *ngIf="showPreviewButton"
+        class="btn btn-outline-info btn-sm"
+        (click)="handlePreviewClick()"
+      >
+        Vista Previa
+      </button>
+
       <button
         *ngIf="showLoanButton && isAvailable()"
         class="btn btn-primary btn-sm"
