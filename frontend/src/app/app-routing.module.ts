@@ -2,14 +2,19 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 
+// Páginas principales
 import { HomeComponent } from './pages/home/home.component';
-import { BooksComponent } from './pages/books/books.component';
-import { BookDetailComponent } from './pages/book-detail/book-detail.component';
-import { MyLoansComponent } from './pages/my-loans/my-loans.component';
-import { AdminComponent } from './pages/admin/admin.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
+import { MyLoansComponent } from './pages/my-loans/my-loans.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+
+// Desde módulo de libros
+import { BooksComponent } from './books/pages/books/books.component';
+import { BookDetailComponent } from './books/pages/book-detail/book-detail.component';
+
+// Desde módulo de admin
+import { AdminComponent } from './admin/pages/admin/admin.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -17,11 +22,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'books', component: BooksComponent },
   { path: 'books/:id', component: BookDetailComponent },
-  {
-    path: 'my-loans',
-    component: MyLoansComponent,
-    canActivate: [AuthGuard],
-  },
+  { path: 'my-loans', component: MyLoansComponent, canActivate: [AuthGuard] },
   {
     path: 'admin',
     component: AdminComponent,

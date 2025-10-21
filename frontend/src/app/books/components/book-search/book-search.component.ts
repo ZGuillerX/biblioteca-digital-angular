@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { Book, BookService } from '../../services/book.service';
+import { Book, BookService } from '../../../services/book.service';
 
 @Component({
   selector: 'app-book-search',

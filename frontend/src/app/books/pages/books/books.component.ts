@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Book, BookService } from '../../services/book.service';
-import { LoanService } from '../../services/loan.service';
-import { AuthService } from '../../services/auth.service';
+
+import { Book, BookService } from 'src/app/services/book.service';
+import { LoanService } from 'src/app/services/loan.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-books',
@@ -85,5 +86,10 @@ export class BooksComponent implements OnInit {
 
   clearSuccess(): void {
     this.success = '';
+  }
+
+  handleBookAdded(): void {
+    this.success = 'El libro ha sido agregado exitosamente al catálogo.';
+    this.loadBooks(); // Reload the book list
   }
 }

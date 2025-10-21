@@ -10,5 +10,6 @@ RUN npm config set registry https://registry.npmmirror.com \
     && npm install bootstrap --save \
     && npm install -g @angular/cli@16.2.10
 
+COPY . .
 
 CMD ["npm", "start"]

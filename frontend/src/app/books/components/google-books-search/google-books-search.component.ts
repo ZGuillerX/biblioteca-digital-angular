@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { firstValueFrom, Subscription } from 'rxjs';
-import { ApiClientService } from '../../services/api-client.service';
-import { BookService } from '../../services/book.service';
+import { ApiClientService } from '../../../services/api-client.service';
+import { BookService } from '../../../services/book.service';
 
 interface GoogleBook {
   title: string;
@@ -177,3 +177,4 @@ export class GoogleBooksSearchComponent implements OnInit, OnDestroy {
     }
   }
 }
+

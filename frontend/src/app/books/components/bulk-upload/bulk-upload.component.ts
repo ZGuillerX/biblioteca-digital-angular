@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { HttpHeaders, HttpEventType, HttpResponse } from '@angular/common/http';
-import { ApiClientService } from '../../services/api-client.service';
+import { ApiClientService } from '../../../services/api-client.service';
 
 interface BulkUploadResult {
   summary: {

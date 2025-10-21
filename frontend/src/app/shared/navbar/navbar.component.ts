@@ -1,30 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, User } from '../../services/auth.service';
+import { AuthService,User } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit {
   isAuthenticated = false;
   user: User | null = null;
   isCollapsed = true;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     this.authService.isAuthenticated$.subscribe(
-      isAuth => this.isAuthenticated = isAuth
+      (isAuth) => (this.isAuthenticated = isAuth)
     );
 
-    this.authService.currentUser$.subscribe(
-      user => this.user = user
-    );
+    this.authService.currentUser$.subscribe((user) => (this.user = user));
   }
 
   handleLogout(): void {
