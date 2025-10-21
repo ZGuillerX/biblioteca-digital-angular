@@ -115,3 +115,11 @@ FROM users;
 SELECT 'Libros creados:' as info;
 SELECT *
 FROM books;
+
+
+ALTER TABLE books 
+ADD COLUMN pages JSON COMMENT 'Páginas del libro en formato JSON' AFTER cover_url;
+
+-- Agregar columna para número total de páginas (para facilitar consultas)
+ALTER TABLE books 
+ADD COLUMN total_pages INT DEFAULT 0 COMMENT 'Número total de páginas' AFTER pages;

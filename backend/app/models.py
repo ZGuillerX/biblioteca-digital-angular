@@ -6,7 +6,7 @@ Utiliza Pydantic para validación automática.
 """
 
 from pydantic import BaseModel, EmailStr, Field, validator
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from datetime import datetime
 import re
 
@@ -96,11 +96,13 @@ class BookBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255, description="Título del libro")
     author: str = Field(..., min_length=1, max_length=150, description="Autor del libro")
     isbn: str = Field(..., min_length=10, max_length=20, description="ISBN del libro")
+    google_books_id: Optional[str] = Field(None, max_length=50, description="ID de Google Books (volumeId)")
     description: Optional[str] = Field(None, description="Descripción del libro")
     category: Optional[str] = Field(None, max_length=100, description="Categoría")
     publication_year: Optional[int] = Field(None, ge=1000, le=2100, description="Año de publicación")
     cover_url: Optional[str] = None
-    
+    total_pages: Optional[int] = Field(None, ge=0, description="Número total de páginas")
+
     # Valida formato básico de ISBN (solo números y guiones)
     @validator('isbn')
     def validate_isbn(cls, v):
@@ -169,6 +171,21 @@ class BookResponse(BookBase):
     
     class Config:
         from_attributes = True
+
+class BookPage(BaseModel):
+    """Modelo para una página individual del libro"""
+    number: int = Field(..., ge=1, description="Número de página")
+    content: str = Field(..., description="Contenido de la página")
+
+class BookPagesResponse(BaseModel):
+    """Modelo para respuesta de páginas del libro"""
+    book_id: int
+    book_title: str
+    google_books_id: Optional[str] = Field(None, description="ID de Google Books para visor embebido")
+    total_pages: int
+    pages: List[BookPage]
+    is_preview: bool = Field(default=False, description="Indica si es vista previa")
+    has_loan: bool = Field(default=False, description="Indica si el usuario tiene el libro prestado")
 
 
 # ==================== MODELOS DE PRÉSTAMO ====================

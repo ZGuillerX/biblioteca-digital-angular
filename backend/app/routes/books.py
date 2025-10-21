@@ -9,9 +9,9 @@ from typing import List, Optional
 import logging
 
 
-from models import BookCreate, BookUpdate, BookResponse, MessageResponse
+from models import BookCreate, BookUpdate, BookResponse, MessageResponse, BookPagesResponse, BookPage
 from database import execute_query
-from routes.auth import require_admin
+from routes.auth import require_admin, get_current_user
 from mysql.connector import Error
 from utils import create_response
 
@@ -191,15 +191,14 @@ async def create_book(
                 message="Ya existe un libro con ese ISBN"
             )
         
-        # Insertar libro (INCLUIR cover_url)
         execute_query(
             """
-            INSERT INTO books (title, author, isbn, description, category, 
+            INSERT INTO books (title, author, isbn, google_books_id, description, category, 
                              publication_year, total_copies, available_copies, cover_url)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
-                book.title, book.author, book.isbn, book.description,
+                book.title, book.author, book.isbn, book.google_books_id, book.description,
                 book.category, book.publication_year,
                 book.total_copies, book.available_copies, book.cover_url
             ),
@@ -209,7 +208,7 @@ async def create_book(
         # Obtener libro creado
         new_book = execute_query(
             """
-            SELECT id, title, author, isbn, description, category, 
+            SELECT id, title, author, isbn, google_books_id, description, category, 
                    publication_year, total_copies, available_copies, cover_url, created_at
             FROM books 
             WHERE isbn = %s
@@ -304,7 +303,7 @@ async def update_book(
         # Obtener libro actualizado
         updated_book = execute_query(
             """
-            SELECT id, title, author, isbn, description, category, 
+            SELECT id, title, author, isbn, google_books_id, description, category, 
                    publication_year, total_copies, available_copies, cover_url, created_at
             FROM books 
             WHERE id = %s
@@ -468,4 +467,123 @@ async def search_google_books(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error al buscar en Google Books"
+        )
+
+# ==================== ENDPOINTS DE LECTURA ====================
+
+@router.get("/{book_id}/preview", response_model=BookPagesResponse)
+async def get_book_preview(book_id: int):
+    """
+    Obtiene información para vista previa del libro usando Google Books.
+    Disponible para todos los usuarios sin autenticación.
+    """
+    try:
+        # Obtener información del libro
+        book = execute_query(
+            """
+            SELECT id, title, google_books_id, isbn, total_pages
+            FROM books 
+            WHERE id = %s
+            """,
+            (book_id,)
+        )
+        
+        if not book:
+            logger.warning(f"Libro no encontrado para vista previa: ID {book_id}")
+            return create_response(
+                status_code=status.HTTP_404_NOT_FOUND,
+                message=f"Libro con ID {book_id} no encontrado"
+            )
+        
+        book_data = book[0]
+        
+        response_data = {
+            "book_id": book_data['id'],
+            "book_title": book_data['title'],
+            "google_books_id": book_data.get('google_books_id'),
+            "total_pages": book_data.get('total_pages', 0),
+            "pages": [],  # No se usan páginas de texto, se usa el visor embebido
+            "is_preview": True,
+            "has_loan": False
+        }
+        
+        logger.info(f"Vista previa obtenida para libro ID {book_id}")
+        return response_data
+        
+    except Exception as e:
+        logger.error(f"Error al obtener vista previa: {e}")
+        return create_response(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message="Error al obtener vista previa",
+            detail=str(e)
+        )
+
+
+@router.get("/{book_id}/read", response_model=BookPagesResponse)
+async def read_book(
+    book_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Obtiene información para lectura completa del libro usando Google Books.
+    Solo disponible si el usuario tiene el libro prestado.
+    """
+    try:
+        # Obtener información del libro
+        book = execute_query(
+            """
+            SELECT id, title, google_books_id, isbn, total_pages
+            FROM books 
+            WHERE id = %s
+            """,
+            (book_id,)
+        )
+        
+        if not book:
+            logger.warning(f"Libro no encontrado para lectura: ID {book_id}")
+            return create_response(
+                status_code=status.HTTP_404_NOT_FOUND,
+                message=f"Libro con ID {book_id} no encontrado"
+            )
+        
+        book_data = book[0]
+        
+        # Verificar si el usuario tiene el libro prestado
+        user_loan = execute_query(
+            """
+            SELECT id, status 
+            FROM loans 
+            WHERE user_id = (SELECT id FROM users WHERE username = %s)
+            AND book_id = %s 
+            AND status = 'activo'
+            """,
+            (current_user['username'], book_id)
+        )
+        
+        if not user_loan:
+            logger.warning(f"Usuario {current_user['username']} intentó leer libro sin préstamo: ID {book_id}")
+            return create_response(
+                status_code=status.HTTP_403_FORBIDDEN,
+                message="Debes tener el libro prestado para leerlo completo"
+            )
+        
+        response_data = {
+            "book_id": book_data['id'],
+            "book_title": book_data['title'],
+            "google_books_id": book_data.get('google_books_id'),
+            "total_pages": book_data.get('total_pages', 0),
+            "pages": [],  # No se usan páginas de texto, se usa el visor embebido
+            "is_preview": False,
+            "has_loan": True
+        }
+        
+        logger.info(f"Lectura completa autorizada para usuario {current_user['username']}, libro ID {book_id}")
+        return response_data
+        
+    except Exception as e:
+        logger.error(f"Error al obtener páginas para lectura: {e}")
+        return create_response(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message="Error al obtener páginas",
+            detail=str(e)
         )
