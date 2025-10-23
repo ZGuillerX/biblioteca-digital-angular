@@ -1,21 +1,9 @@
 import { Injectable } from '@angular/core';
 import { firstValueFrom, Subject } from 'rxjs';
-import  { ApiClientService } from './api-client.service';
+import { ApiClientService } from './api-client.service';
+import { Book } from '../books/models/book.model';
 
-export interface Book {
-  id: number;
-  title: string;
-  author: string;
-  isbn: string;
-  description?: string;
-  category?: string;
-  publication_year?: number;
-  total_copies: number;
-  available_copies: number;
-  cover_url?: string;
-  total_pages?: number;
-}
-
+export { Book };
 export interface BookPage {
   number: number;
   content: string;
@@ -28,6 +16,16 @@ export interface BookPagesData {
   pages: BookPage[];
   is_preview: boolean;
   has_loan: boolean;
+}
+
+export interface Review {
+  id: number;
+  user_id: number;
+  book_id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  username?: string;
 }
 
 @Injectable({
@@ -164,6 +162,56 @@ export class BookService {
       this.catalogChanged.next();
     } catch (e) {
       // noop
+    }
+  }
+
+  async getBookReviews(bookId: number): Promise<Review[]> {
+    try {
+      const response = await firstValueFrom(
+        this.apiClient.get<Review[]>(`/api/reviews/book/${bookId}`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al obtener reseñas del libro:', error);
+      throw error;
+    }
+  }
+
+  async createReview(
+    bookId: number,
+    rating: number,
+    comment: string
+  ): Promise<Review> {
+    try {
+      const reviewData = { book_id: bookId, rating, comment };
+      const response = await firstValueFrom(
+        this.apiClient.post<Review>('/api/reviews/', reviewData)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al crear reseña:', error);
+      throw error;
+    }
+  }
+
+  async deleteReview(reviewId: number): Promise<void> {
+    try {
+      await firstValueFrom(this.apiClient.delete(`/api/reviews/${reviewId}`));
+    } catch (error) {
+      console.error('Error al eliminar reseña:', error);
+      throw error;
+    }
+  }
+
+  async getRecommendedBooks(limit: number = 5): Promise<Book[]> {
+    try {
+      const response = await firstValueFrom(
+        this.apiClient.get<Book[]>(`/api/books/recommended?limit=${limit}`)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error al obtener libros recomendados:', error);
+      throw error;
     }
   }
 }

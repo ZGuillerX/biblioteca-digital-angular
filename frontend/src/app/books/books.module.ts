@@ -9,6 +9,8 @@ import { BookSearchComponent } from './components/book-search/book-search.compon
 import { BulkUploadComponent } from './components/bulk-upload/bulk-upload.component';
 import { GoogleBooksSearchComponent } from './components/google-books-search/google-books-search.component';
 import { BookReaderComponent } from './components/book-reader.component/book-reader.component';
+import { BookReviewsComponent } from './components/book-reviews/book-reviews.component';
+
 
 // Pages
 import { BooksComponent } from './pages/books/books.component';
@@ -20,6 +22,7 @@ import { SafePipe } from '../pipes/safe.pipe';
   declarations: [
     BookCardComponent,
     BookSearchComponent,
+    BookReviewsComponent,
     BulkUploadComponent,
     GoogleBooksSearchComponent,
     BookReaderComponent,

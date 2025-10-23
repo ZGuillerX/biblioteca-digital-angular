@@ -518,7 +518,41 @@ async def get_book_preview(book_id: int):
             detail=str(e)
         )
 
-
+@router.get("/recommended", response_model=List[BookResponse])
+async def get_recommended_books(limit: int = Query(5, ge=1, le=20)):
+    try:
+        recommended_books = execute_query(
+            """
+            SELECT id, title, author, isbn, description, category, 
+                   publication_year, total_copies, available_copies, cover_url, created_at,
+                   average_rating, total_reviews
+            FROM books
+            WHERE total_reviews > 0
+            ORDER BY average_rating DESC, total_reviews DESC
+            LIMIT %s
+            """,
+            (limit,)
+        )
+        
+        logger.info(f"Se obtuvieron {len(recommended_books) if recommended_books else 0} libros recomendados")
+        return recommended_books if recommended_books else []
+        
+    except Error as e:
+        logger.error(f"Error de base de datos al obtener libros recomendados: {e}")
+        return create_response(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message="Error al obtener libros recomendados",
+            detail="Error de base de datos"
+        )
+    except Exception as e:
+        logger.error(f"Error al obtener libros recomendados: {e}")
+        return create_response(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message="Error al obtener libros recomendados",
+            detail=str(e)
+        )
+    
+    
 @router.get("/{book_id}/read", response_model=BookPagesResponse)
 async def read_book(
     book_id: int,
@@ -587,3 +621,4 @@ async def read_book(
             message="Error al obtener páginas",
             detail=str(e)
         )
+

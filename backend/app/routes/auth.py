@@ -63,6 +63,7 @@ def get_current_user(authorization: Optional[str] = Header(None)) -> dict:
                 detail="Token inválido"
             )
         
+        
         logger.debug(f"Usuario autenticado: {username}")
         return {"username": username, "role": role}
         

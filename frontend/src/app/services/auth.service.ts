@@ -22,7 +22,7 @@ export interface UserResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -34,16 +34,13 @@ export class AuthService {
   private loadingSubject = new BehaviorSubject<boolean>(true);
   public loading$ = this.loadingSubject.asObservable();
 
-  constructor(
-    private apiClient: ApiClientService,
-    private router: Router
-  ) {
+  constructor(private apiClient: ApiClientService, private router: Router) {
     this.loadUser();
   }
 
   private loadUser(): void {
     try {
-      if (this.isAuthenticated()) {
+      if (this.isLoggedIn()) {
         const storedUser = this.getStoredUser();
         this.currentUserSubject.next(storedUser);
         this.isAuthenticatedSubject.next(true);
@@ -67,10 +64,16 @@ export class AuthService {
     }
   }
 
-  async login(username: string, password: string): Promise<{ success: boolean; error?: any }> {
+  async login(
+    username: string,
+    password: string
+  ): Promise<{ success: boolean; error?: any }> {
     try {
       const response = await firstValueFrom(
-        this.apiClient.post<LoginResponse>('/api/auth/login', { username, password })
+        this.apiClient.post<LoginResponse>('/api/auth/login', {
+          username,
+          password,
+        })
       );
 
       const token = response.data?.access_token;
@@ -96,7 +99,7 @@ export class AuthService {
       const response = await firstValueFrom(
         this.apiClient.get<UserResponse>('/api/auth/me')
       );
-      return response.data || response as any;
+      return response.data || (response as any);
     } catch (error) {
       throw error;
     }
@@ -111,6 +114,10 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
+    return this.isLoggedIn();
+  }
+
+  isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }
 
@@ -128,7 +135,8 @@ export class AuthService {
     return user?.role === 'admin';
   }
 
-  get currentUser(): User | null {
-    return this.currentUserSubject.value;
+  getCurrentUserId(): number | null {
+    const currentUser = this.currentUserSubject.value;
+    return currentUser ? currentUser.id : null;
   }
 }

@@ -131,6 +131,18 @@
                 >
                   Vista Previa
                 </button>
+          
+                <app-book-reviews [book]="book" *ngIf="book" (reviewUpdated)="loadBook(book.id)"></app-book-reviews>
+                
+                <div *ngIf="book?.average_rating">
+                  Calificación promedio:
+                  {{ book.average_rating | number : "1.1-1" }} ({{
+                    book.total_reviews
+                  }}
+                  reseñas)
+                </div>
+
+                
               </div>
             </div>
           </div>

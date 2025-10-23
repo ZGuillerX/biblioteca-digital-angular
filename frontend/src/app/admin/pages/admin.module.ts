@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { AdminComponent } from './admin/admin.component';
-import { BooksModule } from 'src/app/books/books.module';
+import { BooksModule } from '../../books/books.module';
 
 @NgModule({
   declarations: [AdminComponent],

@@ -17,7 +17,7 @@ import { PagesModule } from './pages/pages.module';
 
 @NgModule({
   declarations: [
-    AppComponent, // Solo el componente raíz se queda aquí
+    AppComponent
   ],
   imports: [
     BrowserModule,

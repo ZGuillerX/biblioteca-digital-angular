@@ -1,0 +1,40 @@
+<div class="book-reviews">
+  <h3>Reseñas</h3>
+  
+  <div *ngIf="isLoggedIn" class="new-review">
+    <h4>Deja tu reseña</h4>
+    <div class="rating">
+      <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+            (click)="newReview.rating = star" 
+            [class.active]="star <= newReview.rating">
+        ★
+      </span>
+    </div>
+    <textarea [(ngModel)]="newReview.comment" placeholder="Escribe tu comentario aquí"></textarea>
+    <button (click)="submitReview()">Enviar reseña</button>
+  </div>
+
+  <div *ngIf="!isLoggedIn" class="login-prompt">
+    <p>Inicia sesión para dejar una reseña.</p>
+  </div>
+
+  <div class="reviews-list">
+    <div *ngFor="let review of reviews" class="review">
+      <div class="review-header">
+        <span class="username">{{ review.username }}</span>
+        <span class="rating">
+          <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+                [class.active]="star <= review.rating">
+            ★
+          </span>
+        </span>
+        <span class="date">{{ review.created_at | date }}</span>
+      </div>
+      <p class="comment">{{ review.comment }}</p>
+      <button *ngIf="review.user_id === authService.getCurrentUserId()" 
+              (click)="deleteReview(review.id)">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

@@ -163,11 +163,12 @@ class BookUpdate(BaseModel):
 
 # Modelo de respuesta de libro.
 class BookResponse(BookBase):
-    
     id: int
     total_copies: int
     available_copies: int
     created_at: datetime
+    average_rating: float = Field(0.0, ge=0.0, le=5.0, description="Valoración promedio del libro")
+    total_reviews: int = Field(0, ge=0, description="Número total de reseñas")
     
     class Config:
         from_attributes = True
@@ -197,7 +198,6 @@ class LoanCreate(BaseModel):
 
 # Modelo de respuesta de préstamo.
 class LoanResponse(BaseModel):
-   
     id: int
     user_id: int
     book_id: int
@@ -206,6 +206,7 @@ class LoanResponse(BaseModel):
     return_date: Optional[datetime] = None
     status: str
     created_at: datetime
+    has_review: bool = Field(False, description="Indica si el usuario ha dejado una reseña para este préstamo")
     
     class Config:
         from_attributes = True
@@ -219,11 +220,30 @@ class LoanWithDetails(LoanResponse):
     user_username: str
 
 
+# ==================== MODELOS DE RESEÑA ====================
+
+class ReviewBase(BaseModel):
+    book_id: int = Field(..., gt=0, description="ID del libro reseñado")
+    rating: int = Field(..., ge=1, le=5, description="Valoración del libro (1-5 estrellas)")
+    comment: Optional[str] = Field(None, max_length=1000, description="Comentario de la reseña")
+    
+class ReviewCreate(ReviewBase):
+    pass
+
+class ReviewResponse(ReviewBase):
+    id: int
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 # ==================== MODELOS DE RESPUESTA GENÉRICOS ====================
 
 #Modelo de respuesta genérica con mensaje
 class MessageResponse(BaseModel):
-    
+
     message: str = Field(..., description="Mensaje de respuesta")
     detail: Optional[str] = Field(None, description="Detalle adicional")
 
@@ -234,3 +254,4 @@ class ErrorResponse(BaseModel):
     error: str = Field(..., description="Tipo de error")
     message: str = Field(..., description="Mensaje de error")
     detail: Optional[str] = Field(None, description="Detalle técnico")
+
