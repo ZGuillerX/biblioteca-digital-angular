@@ -3,38 +3,86 @@
   
   <div *ngIf="isLoggedIn" class="new-review">
     <h4>Deja tu reseña</h4>
-    <div class="rating">
-      <span *ngFor="let star of [1, 2, 3, 4, 5]" 
-            (click)="newReview.rating = star" 
-            [class.active]="star <= newReview.rating">
-        ★
-      </span>
+    
+    <!-- Sistema de rating con estrellas animadas -->
+    <div class="rating-container">
+      <p class="rating-text" *ngIf="newReview.rating > 0">
+        Has seleccionado: <strong>{{ newReview.rating }} {{ newReview.rating === 1 ? 'estrella' : 'estrellas' }}</strong>
+      </p>
+      <p class="rating-text" *ngIf="newReview.rating === 0">
+        Selecciona una calificación
+      </p>
+      
+      <div class="star-rating">
+        <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+              class="star"
+              (click)="setRating(star)"
+              (mouseenter)="hoverRating = star"
+              (mouseleave)="hoverRating = 0"
+              [class.active]="star <= (hoverRating || newReview.rating)"
+              [class.hover]="star <= hoverRating && hoverRating > 0">
+          ★
+        </span>
+      </div>
+      
+      <div class="rating-labels">
+        <span>Malo</span>
+        <span>Regular</span>
+        <span>Bueno</span>
+        <span>Muy bueno</span>
+        <span>Excelente</span>
+      </div>
     </div>
-    <textarea [(ngModel)]="newReview.comment" placeholder="Escribe tu comentario aquí"></textarea>
-    <button (click)="submitReview()">Enviar reseña</button>
+
+    <textarea [(ngModel)]="newReview.comment" 
+              placeholder="Escribe tu comentario aquí (opcional)"
+              maxlength="500"
+              class="review-textarea"></textarea>
+    <div class="char-counter">{{ newReview.comment.length || 0 }}/500</div>
+    
+    <button (click)="submitReview()" 
+            [disabled]="newReview.rating === 0"
+            class="submit-btn">
+      {{ newReview.rating === 0 ? 'Selecciona una calificación' : 'Enviar reseña' }}
+    </button>
   </div>
 
   <div *ngIf="!isLoggedIn" class="login-prompt">
-    <p>Inicia sesión para dejar una reseña.</p>
+    <p> Inicia sesión para dejar una reseña y compartir tu opinión.</p>
   </div>
 
   <div class="reviews-list">
-    <div *ngFor="let review of reviews" class="review">
+    <div *ngFor="let review of reviews" class="review-card">
       <div class="review-header">
-        <span class="username">{{ review.username }}</span>
-        <span class="rating">
-          <span *ngFor="let star of [1, 2, 3, 4, 5]" 
-                [class.active]="star <= review.rating">
-            ★
-          </span>
-        </span>
-        <span class="date">{{ review.created_at | date }}</span>
+        <div class="user-info">
+          <span class="username"> {{ review.username }}</span>
+          <span class="date">{{ review.created_at | date:'mediumDate' }}</span>
+        </div>
+        
+        <div class="review-rating">
+          <div class="star-display">
+            <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+                  class="star-display"
+                  [class.active]="star <= review.rating">
+                ★
+            </span>
+          </div>
+          <span class="rating-value">{{ review.rating }}/5</span>
+        </div>
       </div>
-      <p class="comment">{{ review.comment }}</p>
+      
+      <p class="comment" *ngIf="review.comment">{{ review.comment }}</p>
+      <p class="no-comment" *ngIf="!review.comment">El usuario no dejó un comentario.</p>
+      
       <button *ngIf="review.user_id === authService.getCurrentUserId()" 
-              (click)="deleteReview(review.id)">
-        Eliminar
+              (click)="deleteReview(review.id)"
+              class="delete-btn">
+         Eliminar
       </button>
+    </div>
+    
+    <div *ngIf="reviews.length === 0" class="no-reviews">
+      <p>Aún no hay reseñas para este libro. ¡Sé el primero en opinar!</p>
     </div>
   </div>
 </div>

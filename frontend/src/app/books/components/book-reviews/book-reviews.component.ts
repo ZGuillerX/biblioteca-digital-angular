@@ -13,6 +13,7 @@ export class BookReviewsComponent implements OnInit {
   reviews: Review[] = [];
   newReview: { rating: number; comment: string } = { rating: 0, comment: '' };
   isLoggedIn = false;
+  hoverRating = 0;
 
   constructor(
     private bookService: BookService,
@@ -22,6 +23,10 @@ export class BookReviewsComponent implements OnInit {
   ngOnInit(): void {
     this.loadReviews();
     this.isLoggedIn = this.authService.isAuthenticated();
+  }
+
+  setRating(rating: number): void {
+    this.newReview.rating = rating;
   }
 
   async loadReviews(): Promise<void> {
